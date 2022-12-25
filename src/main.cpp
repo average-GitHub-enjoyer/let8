@@ -4,6 +4,12 @@
 #include <vector>
 #include <fstream>
 
+typedef struct {
+  uint8_t age;
+  char grade;
+  uint16_t score;
+} ParametersStudent;
+
 class Student {
 public:
     Student(uint8_t age, uint16_t score, char grade, const std::string &name) :
@@ -38,18 +44,16 @@ int main(int argc, char **argv) {
 
     std::ifstream file(argv[argc - 1], std::ios::binary | std::ios::in);
 
+    ParametersStudent parametersStudent;
+
     if (file) {
         uint32_t count;
         file.read((char *) &count, sizeof(count));
         std::cout << "{\n\t\"total_count\": " << count << ",\n\t\"students\": [\n";
         for (uint32_t i = count; i > 0; i--) {
-            uint8_t age;
-            char grade;
-            uint16_t score;
+            file.read((char *) &parametersStudent, sizeof(parametersStudent));
+            
             std::string name;
-            file.read((char *) &age, 1);
-            file.read((char *) &grade, 1);
-            file.read((char *) &score, 2);
             char buf;
             do {
                 file.read((char *) &buf, 1);
@@ -58,7 +62,7 @@ int main(int argc, char **argv) {
                 }
                 name += buf;
             } while (buf != 0);
-            Student st(age, score, grade, name);
+            Student st(parametersStudent.age, parametersStudent.score, parametersStudent.grade, name);
             std::cout << st;
             if (i > 1) {
                 std::cout << ",\n";
